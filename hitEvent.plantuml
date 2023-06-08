@@ -1,0 +1,73 @@
+@startwbs
+* hitEvent: gameHitEvent
+** attackData: AttackData
+***< attackType: gamedataAttackType
+****< ChargedWhipAttack
+****< Direct
+****< Effect
+****< Explosion
+****< GuardBreak
+****< Hack
+****< Melee
+****< PressureWave
+****< QuickMelee
+****< Ranged
+****< Reflect
+****< StrongMelee
+****< Thrown
+****< WhipAttack
+*** instigator: GameObject
+*** source: GameObject
+*** weapon: WeaponObject
+*** attackDefinition: IAttack
+*** attackPosition: Vector4
+*** weaponCharge: Float
+*** numRicochetBounces: Int32
+*** attackTime: Float
+*** flags: array< SHitFlag >
+**** flag: hitFlag
+***** ...
+***** WasBlocked
+***** WasDeflected
+***** WasDodged
+***** WasEvaded
+***** WasMitigated
+***** Kill
+***** ...
+**** source: CName
+*** statusEffects: array< SHitStatusEffect >
+**** stacks: Float
+**** id: TweakDBID
+***< hitType: gameuiHitType
+****< Miss
+****< Glance
+****< Hit
+****< CriticalHit
+****< CriticalHit_x2
+*** vehicleImpactForce: Float
+*** additionalCritChance: Float
+** target: GameObject
+** hitPosition: Vector4
+** hitDirection: Vector4
+** hitComponent: IPlacedComponent
+** hitRepresentationResult: HitRepresentationQueryResult
+*** hitShapes: array< HitShapeData >
+**** result: HitShapeResult
+***** hitPositionEnter: Vector4
+***** hitPositionExit: Vector4
+***** enterDistanceFromOriginSq: Float
+**** userData: HitShapeUserData
+**** physicsMaterial: CName
+**** hitShapeName: CName
+** hasPiercedTechSurface: Bool
+** attackPentration: Float
+** attackComputed: gameAttackComputed
+*** GetAttackValue(damageType: gamedataDamageType)
+**** Chemical
+**** Electric
+**** Physical
+**** Thermal
+** wasAliveBeforeHit: Bool
+** projectionPipeline: Bool
+
+@endwbs
