@@ -19,6 +19,7 @@ registerForEvent("onInit", function()
 		network:AddVector4("hit_direction", hitEvent.hitDirection)
 		network:AddVector4("attack_position", hitEvent.attackData.attackPosition)
 		--network:AddFloat("attack_pentration", hitEvent.attackPentration)
+		network:AddVector4("player_direction", hitEvent.target:GetWorldForward())
 	
 		flags = {}
 		for i, flag in ipairs(hitEvent.attackData.flags) do
