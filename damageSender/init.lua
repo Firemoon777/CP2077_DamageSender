@@ -34,6 +34,17 @@ registerForEvent("onInit", function()
 		local sps = Game.GetStatPoolsSystem()
 		local currHealth = sps:GetStatPoolValue(hitEvent.target:GetEntityID(), gamedataStatPoolType.Health)
 		network:AddFloat("health", currHealth)
+		
+		local direction = Game.GetAttackAngleInInt(hitEvent)
+		if direction == 1 then
+			network:AddString("direction", "left")
+		elseif direction == 2 then
+			network:AddString("direction", "back")
+		elseif direction == 3 then
+			network:AddString("direction", "right")
+		else
+			network:AddString("direction", "front")
+		end
 
 		network:Send()
 	end)
