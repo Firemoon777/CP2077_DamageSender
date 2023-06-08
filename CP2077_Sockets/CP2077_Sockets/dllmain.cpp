@@ -71,6 +71,22 @@ void AddFloat(RED4ext::IScriptable* aContext, RED4ext::CStackFrame* aFrame, void
     self->data[key.c_str()] = value;
 }
 
+void AddStringArrayValue(RED4ext::IScriptable* aContext, RED4ext::CStackFrame* aFrame, void* aOut, int64_t a4)
+{
+    auto self = static_cast<NetworkController*>(aContext);
+
+    RED4ext::CString key, value;
+    RED4ext::GetParameter(aFrame, &key);
+    RED4ext::GetParameter(aFrame, &value);
+    aFrame->code++; // skip ParamEnd
+
+    if (!self->data.contains(key.c_str())) {
+        self->data[key.c_str()] = nlohmann::json::array();
+    }
+
+    self->data[key.c_str()].push_back(value.c_str());
+}
+
 void SendUDP(RED4ext::IScriptable* aContext, RED4ext::CStackFrame* aFrame, void* aOut, int64_t a4)
 {
     auto self = static_cast<NetworkController*>(aContext);
@@ -117,6 +133,11 @@ void PostRegisterTypes()
     addFloat->AddParam("Float", "value");
     networkControllerClass.RegisterFunction(addFloat);
 
+    auto addStringArrayValue = RED4ext::CClassFunction::Create(&networkControllerClass, "AddStringArrayValue", "AddStringArrayValue", &AddStringArrayValue, { .isNative = true });
+    addStringArrayValue->AddParam("String", "key");
+    addStringArrayValue->AddParam("String", "value");
+    networkControllerClass.RegisterFunction(addStringArrayValue);
+
     auto clear = RED4ext::CClassFunction::Create(&networkControllerClass, "Clear", "Clear", &Clear, { .isNative = true });
     networkControllerClass.RegisterFunction(clear);
 
@@ -160,9 +181,9 @@ RED4EXT_C_EXPORT bool RED4EXT_CALL Main(RED4ext::PluginHandle aHandle, RED4ext::
 
 RED4EXT_C_EXPORT void RED4EXT_CALL Query(RED4ext::PluginInfo* aInfo)
 {
-    aInfo->name = L"Plugin's name";
-    aInfo->author = L"Author's name";
-    aInfo->version = RED4EXT_SEMVER(1, 0, 0); // Set your version here.
+    aInfo->name = L"Network Controller";
+    aInfo->author = L"f1remoon";
+    aInfo->version = RED4EXT_SEMVER(1, 0, 0);
     aInfo->runtime = RED4EXT_RUNTIME_LATEST;
     aInfo->sdk = RED4EXT_SDK_LATEST;
 }

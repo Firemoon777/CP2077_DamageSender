@@ -1,16 +1,7 @@
 local network;
+-- local blackboardDefs = Game.GetAllBlackboardDefs()
+-- local blackboardUI = Game.GetBlackboardSystem():Get(blackboardDefs.UI_Notifications)
 
-function vector4str(a)
-	return string.format("[%.6f, %.6f, %.6f, %.6f]", a.x, a.y, a.z, a.w)
-end
-
-function nullable(a)
-	if not a then
-		return ""
-	end
-	
-	return a
-end
 
 registerForEvent("onInit", function()
 	network = NewObject("NetworkController")
@@ -21,40 +12,29 @@ registerForEvent("onInit", function()
 			return
 		end
 		
-		local fmt = [[{
-			"type": "%s",
-			"hit_position": %s,
-			"hit_direction": %s,
-			"attack_position": %s,
-			"attack_pentration": %.6f
-		}]]
-		local data = string.format(
-			fmt,
-			hitEvent.attackData.attackType.value,
-			vector4str(hitEvent.hitPosition),
-			vector4str(hitEvent.hitDirection),
-			vector4str(hitEvent.attackData.attackPosition),
-			hitEvent.attackPentration
-		)
-		network:SendUDP(data)
-		
-		-- print(hitEvent.hitRepresentationResult.hitShapes[1].result.hitPositionEnter, ' -> ', hitEvent.hitRepresentationResult.hitShapes[1].result.hitPositionExit)
-		
-		
-		print("Source position: ", hitEvent.attackData.source:GetWorldPosition())
-		
-		--print("source: ", hitEvent.attackData.source:GetDisplayName())
-		--print("weapon: ", hitEvent.attackData.weapon:GetDisplayName())
-		print("Hit position: ", hitEvent.hitPosition)
-		--print(Dump(hitEvent.attackComputed, false))
-		print("Attack values:")
-		for i, value in ipairs(hitEvent.attackComputed:GetAttackValues()) do
-			print(i, " -> ", value)
+		network:Clear()
+		-- network:AddString("hit_type", hitEvent.attackData.hitType.value)
+		network:AddString("attack_type", hitEvent.attackData.attackType.value)
+		network:AddVector4("hit_position", hitEvent.hitPosition)
+		network:AddVector4("hit_direction", hitEvent.hitDirection)
+		network:AddVector4("attack_position", hitEvent.attackData.attackPosition)
+		--network:AddFloat("attack_pentration", hitEvent.attackPentration)
+	
+		flags = {}
+		for i, flag in ipairs(hitEvent.attackData.flags) do
+			flags[i] = flag.flag.value
+			network:AddStringArrayValue("flags", flag.flag.value)
 		end
-		--print(Dump(hitEvent.hitRepresentationResult.hitShapes[1].result, false))
-	end)
-end)
+		
+		network:AddFloat("damage_chemical", hitEvent.attackComputed:GetAttackValue(gamedataDamageType.Chemical))
+		network:AddFloat("damage_electric", hitEvent.attackComputed:GetAttackValue(gamedataDamageType.Electric))
+		network:AddFloat("damage_physical", hitEvent.attackComputed:GetAttackValue(gamedataDamageType.Physical))
+		network:AddFloat("damage_thermal", hitEvent.attackComputed:GetAttackValue(gamedataDamageType.Thermal))
 
-Observe("PlayerPuppet", "OnHitUI", function(self, hitEvent) 
-	print("Hit!")
+		local sps = Game.GetStatPoolsSystem()
+		local currHealth = sps:GetStatPoolValue(hitEvent.target:GetEntityID(), gamedataStatPoolType.Health)
+		network:AddFloat("health", currHealth)
+
+		network:Send()
+	end)
 end)
